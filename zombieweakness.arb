@@ -1,0 +1,77 @@
+# arb is a ruby filetype, this is ruby code (been hooked since programing languages) :)
+# my solution for the zombie problem, decided to add saving to a file which took up 90% of my time 
+# fills a map of zombie types (keys) as Strings and their weaknesses (values) as an array of Strings 
+# saves and recalls data from a csv file (example included)
+# if you keep doing these design problems it might be interesting to make students make exe files as that was something
+# I did not know how to do but needed to do right away when I started working on projects for non CS people 
+
+require 'csv'
+
+class LookUp 
+
+    def initialize  
+        @map = Hash.new
+        @filename = "zombiedata.csv"
+
+
+        if !File.file? @filename  #check if we have a save file
+            File.open(@filename, 'w') #if not make one
+        else
+            input = CSV.parse(File.read(@filename)) #if so parse it
+            input.each do |type| #converts the csv into a map
+            @map.store(type[0], [])
+            type.each do |weak|
+                @map[type[0]].push(weak)
+            end
+        @map[type[0]].delete(type[0]) #removes some extra value (I should be able to think of a better work around but alas)
+        end
+        end
+    end
+
+    def getWeakness type #return weakness for a given type
+        @map[type]
+    end   
+    
+    def addType type #add a new zombie type
+        @map.store(type, [])
+    end 
+
+    def addWeakness type, weakness #add a new weakness to a type
+        @map[type].push(weakness)
+    end
+
+    def save #return to a csv when finished
+        CSV.open(@filename, "w") do |csv|
+            @map.each do |info|
+                toCSV = []
+                toCSV.push(info[0])
+                info[1].each do |n|
+                    toCSV.push(n)
+                end
+                csv << toCSV
+            end
+        end  
+    end
+end
+
+#some example runs
+lookup = LookUp.new
+lookup.addType("big")
+lookup.addWeakness("big", "fire")
+lookup.addWeakness("big", "slow")
+lookup.addType("fast")
+lookup.addWeakness("fast", "frail")
+lookup.addWeakness("fast", "cold")
+lookup.addWeakness("fast", "acid")
+lookup.addType("standard")
+lookup.addWeakness("standard", "dumb")
+lookup.addWeakness("standard", "headshot")
+lookup.addType("necromancer")
+lookup.addWeakness("necromancer", "frail")
+lookup.addWeakness("necromancer", "blind")
+lookup.addWeakness("necromancer", "acid")
+p lookup.getWeakness("necromancer")
+p lookup.getWeakness("big")
+p lookup.getWeakness("fast")
+lookup.save
+
